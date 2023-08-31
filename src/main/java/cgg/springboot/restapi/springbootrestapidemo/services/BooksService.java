@@ -4,58 +4,74 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import cgg.springboot.restapi.springbootrestapidemo.dao.BookRepository;
 import cgg.springboot.restapi.springbootrestapidemo.entities.Book;
 
 @Component
 public class BooksService {
 
-    private static  List<Book> books= new ArrayList<>();
+    @Autowired
+    private BookRepository bookRepository;
 
-    static{
-        books.add(new Book(5,"Java Head First","ABC"));
-        books.add(new Book(12,"Java Completet Reference","XYZ"));
-        books.add(new Book(1212,"JThink in Java","LMN"));
-    }
+    // private static  List<Book> books= new ArrayList<>();
+
+    // static{
+    //     books.add(new Book(5,"Java Head First","ABC"));
+    //     books.add(new Book(12,"Java Completet Reference","XYZ"));
+    //     books.add(new Book(1212,"JThink in Java","LMN"));
+    // }
 
     //get all books
     public List<Book> getBooks(){
 
-        return books;
+        List<Book> list =bookRepository.findAll();
+        return list;
     }
 
     //get single book
     public Book getBookById(int id){
-        Book book=books.stream().filter(b->b.getBookId()==id).findFirst().get();
+        Book book=null;
+        try{
+           book=bookRepository.findById(id).get();
+         }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        
         return book;
     }
 
     //adding a book
     public Book addBook(Book book){
-
-        books.add(book);
-        return book;
+        Book book2=bookRepository.save(book);
+        return book2;
     }
 
     //updating a book
-    public List<Book> updateBook(Book book,int id)
+    public void updateBook(Book book,int id)
     {
 
-      books=  books.stream().map(b->{
-            if(b.getBookId()==id){
-                b.setAuthor(book.getAuthor());
-                b.setTitle(book.getTitle());
-               }
-            return b;
-        }).collect(Collectors.toList());
-
-        return books;
+    //   books= books.stream().map(b->{
+    //         if(b.getBookId()==id){
+    //             b.setAuthor(book.getAuthor());
+    //             b.setTitle(book.getTitle());
+    //            }
+    //         return b;
+    //     }).collect(Collectors.toList());
+      Book b=bookRepository.findById(id).get();
+      b.setAuthor(book.getAuthor());
+      b.setTitle(book.getTitle());
+      Book book2=bookRepository.save(b);
+        
     }
 
     //deleting a book
     public void deleteBook(int id){
-       books= books.stream().filter(b->b.getBookId()!=id).collect(Collectors.toList());
+    //    books= books.stream().filter(b->b.getBookId()!=id).collect(Collectors.toList());
+    bookRepository.deleteById(id);
     }
     
 }
